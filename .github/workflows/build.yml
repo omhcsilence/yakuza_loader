@@ -1,1 +1,45 @@
+name: Build YakuzaXsilence APK
 
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+          
+      - run: flutter pub get
+      - run: flutter build apk --release --split-per-abi
+      
+      - name: Upload APKs to Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v1.0.${{ github.run_number }}
+          name: "YakuzaXsilence v1.0.${{ github.run_number }}"
+          body: |
+            📱 **YakuzaXsilence by OmhcSilence**
+            
+            ✅ APK size: ~13-16MB
+            🔄 Auto update from GitHub
+            👤 Developer: OmhcSilence
+            
+            ## Cara Install:
+            1. Download APK sesuai HP kamu
+            2. Install (izin dari unknown sources)
+            3. Buka aplikasi
+            4. Konten akan auto download
+          files: |
+            build/app/outputs/flutter-apk/*.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
